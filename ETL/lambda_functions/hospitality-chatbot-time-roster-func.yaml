@@ -1,0 +1,64 @@
+# This AWS SAM template has been generated from your function's configuration. If
+# your function has one or more triggers, note that the AWS resources associated
+# with these triggers aren't fully specified in this template and include
+# placeholder values. Open this template in AWS Application Composer or your
+# favorite IDE and modify it to specify a serverless application with other AWS
+# resources.
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application Model template describing your function.
+Resources:
+  hospitalitychatbottimerosterfunc:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Description: ''
+      MemorySize: 1024
+      Timeout: 900
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.10
+      Architectures:
+        - x86_64
+      EphemeralStorage:
+        Size: 512
+      Environment:
+        Variables:
+          member_id: '310005'
+          bucket_name: hospitality-chatbot-058264544364-us-east-1
+          base_url: http://momentohospitality.humanforce.com
+          clerk_id: '999999010'
+          client_id: '670233'
+          human_force_api_key: D9437E0B6FE34664A69B73929B9DFC69
+          signature: Swift-Apliko Technologies
+          human_force_api_secret: CREK65jLEvtsDQSYgvuxISVpje7tPaVK865iUgX4
+          customer_id: '55671021'
+          identity: cee5d703-fa9a-4d55-aeb6-9f3816bcdf23
+      EventInvokeConfig:
+        MaximumEventAgeInSeconds: 21600
+        MaximumRetryAttempts: 2
+      Layers:
+        - >-
+          arn:aws:lambda:us-east-1:058264544364:layer:hospitality-chatbot-layer:3
+      PackageType: Zip
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - logs:CreateLogGroup
+              Resource: arn:aws:logs:us-east-1:058264544364:*
+            - Effect: Allow
+              Action:
+                - logs:CreateLogStream
+                - logs:PutLogEvents
+              Resource:
+                - >-
+                  arn:aws:logs:us-east-1:058264544364:log-group:/aws/lambda/hospitality-chatbot-time-roster-func:*
+            - Effect: Allow
+              Action:
+                - s3:*
+                - s3-object-lambda:*
+              Resource: '*'
+      SnapStart:
+        ApplyOn: None
+      RuntimeManagementConfig:
+        UpdateRuntimeOn: Auto

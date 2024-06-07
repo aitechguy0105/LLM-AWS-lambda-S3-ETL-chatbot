@@ -37,13 +37,13 @@ class AthenaQueryExecute:
         query_status = self.athena_client.get_query_execution(QueryExecutionId=query_execution_id)
         while query_status['QueryExecution']['Status']['State'] in ['QUEUED', 'RUNNING']:
             query_status = self.athena_client.get_query_execution(QueryExecutionId=query_execution_id)
-
-        # self.wait_for_execution(execution_id)
+            time.sleep(1)
+        
         file_name = f"{result_folder}/{query_execution_id}.csv"
         logger.info(f'checking for file :{file_name}')
-        local_file_name = f"/tmp/{file_name}"
+        
 
-        print(f"Calling download fine with params {local_file_name}, {result_config}")
+        print(f"Calling download fine with params {file_name}, {result_config}")
         obj = self.s3_client.get_object(Bucket= self.glue_databucket_name , Key = file_name)
         df = pd.read_csv(io.BytesIO(obj['Body'].read()), encoding='utf8')
         # print(df.head())
@@ -57,29 +57,33 @@ class AthenaQueryExecute:
             "Catalog": "AwsDataCatalog",
         }
         # query_string="Explain  "+query_string
-        print(f"Executing: {query_string}")
+        print(f"=========Executing for syntax check: {query_string}")
         try:
             print(" I am checking the syntax here")
-            query_execution = self.athena_client.start_query_execution(
+            response = self.athena_client.start_query_execution(
                 QueryString=query_string,
                 ResultConfiguration=query_config,
                 QueryExecutionContext=query_execution_context,
             )
-            execution_id = query_execution["QueryExecutionId"]
-            print(f"execution_id: {execution_id}")
-            time.sleep(3)
-            results = self.athena_client.get_query_execution(QueryExecutionId=execution_id)
-            # print(f"results: {results}")
-            status=results['QueryExecution']['Status']
-            print("Status :",status)
+
+            query_execution_id = response['QueryExecutionId']
+            query_status = self.athena_client.get_query_execution(QueryExecutionId=query_execution_id)
+            while query_status['QueryExecution']['Status']['State'] in ['QUEUED', 'RUNNING']:
+                query_status = self.athena_client.get_query_execution(QueryExecutionId=query_execution_id)
+                time.sleep(1)
+            
+            print(f"============= results: {query_status}")
+            status=query_status['QueryExecution']['Status']
+            print("==============Status :",status)
             if status['State']=='SUCCEEDED':
                 return "Passed"
             else:  
-                print(results['QueryExecution']['Status']['StateChangeReason'])
-                errmsg=results['QueryExecution']['Status']['StateChangeReason']
+                print(query_status['QueryExecution']['Status']['StateChangeReason'])
+                errmsg=query_status['QueryExecution']['Status']['StateChangeReason']
+                print("=========== StateChangeReason    errmsg: ", errmsg)
                 return errmsg
             # return results
         except Exception as e:
             print("Error in exception")
             msg = str(e)
-            print(msg)
+            print("================Exception Error", msg)

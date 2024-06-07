@@ -1,2 +1,7 @@
 test.py
 .venv
+*.json
+*.csv
+*.parquet
+*.sql
+*.zip
