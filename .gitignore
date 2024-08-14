@@ -3,7 +3,6 @@ test.py
 .env
 test_CORS.html
 script.js
-chatbot-gpt-4o/*
 chatbot-bedrock/*
 ETL-test/*
 *.json
